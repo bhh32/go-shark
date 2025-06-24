@@ -9,8 +9,9 @@ import (
 
 var iface string
 var duration int
+var filter string
 
-var captureCmd = &cobra.Command{
+var CaptureCmd = &cobra.Command{
 	Use:   "capture",
 	Short: "Capture packets on a network interface",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -20,15 +21,10 @@ var captureCmd = &cobra.Command{
 		}
 
 		if duration <= 0 {
+			fmt.Println("Duration cannot be less than or equal to 0\nUsing default duration of 10 seconds")
 			duration = 10
 		}
 
-		capture.CapturePackets(iface, duration)
+		capture.CapturePackets(iface, duration, filter)
 	},
-}
-
-func init() {
-	captureCmd.Flags().StringVar(&iface, "iface", "", "Network interface to capture from")
-	captureCmd.Flags().IntVar(&duration, "duration", 10, "Capture duration in seconds")
-	rootCmd.AddCommand(captureCmd)
 }

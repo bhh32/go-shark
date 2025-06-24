@@ -11,7 +11,7 @@ import (
 )
 
 // CapturePackets captures packets on the specified interface
-func CapturePackets(iface string, durationSecs int) error {
+func CapturePackets(iface string, durationSecs int, filter string) error {
 	handle, err := pcap.OpenLive(iface, 1600, true, pcap.BlockForever)
 
 	if err != nil {
@@ -20,8 +20,16 @@ func CapturePackets(iface string, durationSecs int) error {
 
 	defer handle.Close()
 
+	if filter != "" {
+		if err := handle.SetBPFFilter(filter); err != nil {
+			return fmt.Errorf("could not set BPF filter: %v", err)
+		}
+
+		fmt.Println("Applied filter: ", filter)
+	}
+
 	packetSrc := gopacket.NewPacketSource(handle, handle.LinkType())
-	timeout := time.After(time.Duration(durationSecs))
+	timeout := time.After(time.Duration(durationSecs) * time.Second)
 
 	fmt.Printf("Capturing packets on %s for %d seconds...\n", iface, durationSecs)
 
